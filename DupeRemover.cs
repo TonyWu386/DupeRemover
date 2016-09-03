@@ -28,14 +28,16 @@ namespace DupeRemover
 			int dupCount = 0;
 			int delCount = 0;
 			bool auto;
+			bool newer = false;
+			bool ageflag = false;
 			if (args.Length == 0) {
 				Console.Write ("flag required\n");
-				Console.Write ("usage: DupeRemover.exe -man|-auto|-help [directory]\n");
+				PrintUsage ();
 				return 1;
 			} else {
 				if (args.Length > 2) {
 					Console.Write ("too many args\n");
-					Console.Write ("usage: DupeRemover.exe -man|-auto|-help [directory]\n");
+					PrintUsage ();
 					return 1;
 				} else {
 					switch (args [0].ToLower ()) {
@@ -45,11 +47,16 @@ namespace DupeRemover
 					case "-auto":
 						auto = true;
 						break;
+					case "-autonew":
+						auto = true;
+						newer = true;
+						break;
 					case "-help":
 						PrintHelp ();
 						return 0;
 					default:
 						Console.Write ("invalid flag\n");
+						PrintUsage ();
 						return 1;
 					}
 					if (args.Length == 2) {
@@ -76,12 +83,18 @@ namespace DupeRemover
 							Console.Write ("\n");
 						}
 						dupCount++;
-						if (userIn == 'z') {
+						if (auto) {
+							ageflag = FirstNewer (files [i], files [Array.IndexOf (hashes, hash)]);
+							if (newer) {
+								ageflag = !ageflag;
+							}
+						}
+						if (userIn == 'z' || (auto && !ageflag)) {
 							File.Delete (files [Array.IndexOf (hashes, hash)]);
 							hashes [i] = hash;
 							hashes [Array.IndexOf (hashes, hash)] = "\0";
 							delCount++;
-						} else if (userIn == 'x' || auto) {
+						} else if (userIn == 'x' || (auto && ageflag)) {
 							File.Delete (files [i]);
 							delCount++;
 						}
@@ -120,14 +133,34 @@ namespace DupeRemover
 
 		static void PrintHelp ()
 		{
-			Console.Write ("\nDupeRemover - a utility for finding and removing duplicate files\n");
-			Console.Write ("usage: DupeRemover.exe -man|-auto|-help [directory]\n");
+			Console.Write ("\nDupeRemover - an utility for finding and removing duplicate files\n");
+			Console.Write ("usage: DupeRemover.exe -man|-auto|-autonew|-help [directory]\n");
 			Console.Write ("duplicate files are found by cross-referencing SHA1 hashes with file sizes\n");
-			Console.Write ("two manners of removal is offered:\n");
+			Console.Write ("two manners of removal are offered:\n");
 			Console.Write ("-man, manual mode: user confirmation for all deletions, ability to pick file name\n");
-			Console.Write ("-auto, automatic mode: deletion operation is executed without user intervention\n");
+			Console.Write ("-auto, automatic mode: no user intervention, keeps older file\n");
+			Console.Write ("-autonew, automatic mode: no user intervention, keeps newer file\n");
 			Console.Write ("directory: directory (string representation) may be provided\n");
 			Console.Write ("if it is not passed, the directory of the executable will be used\n\n");
 		}
+
+		static void PrintUsage ()
+		{
+			Console.Write ("usage: DupeRemover.exe -man|-auto|-autonew|-help [directory]\n");
+		}
+
+		static bool FirstNewer (string fName1, string fName2)
+		{
+			DateTime mod1 = File.GetLastWriteTime (fName1);
+			DateTime mod2 = File.GetLastWriteTime (fName2);
+			int result = DateTime.Compare (mod1, mod2);
+			if (result < 0) {
+				return false;
+			} else {
+				return true;
+			}
+		
+		}
+
 	}
 }
