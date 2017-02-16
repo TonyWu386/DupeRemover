@@ -1,6 +1,6 @@
 # DupeRemover
 
-An utility for finding and removing duplicate files implemented in C#
+A utility for finding and removing duplicate files implemented in C#
 
 Copyright (c) 2016 [Tony Wu], All Right Reserved
 
