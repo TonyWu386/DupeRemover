@@ -30,81 +30,102 @@ namespace DupeRemover
 			bool auto;
 			bool newer = false;
 			bool ageflag = false;
-			if (args.Length == 0) {
+			if (args.Length == 0)
+			{
 				Console.Write ("flag required\n");
 				PrintUsage ();
 				return 1;
-			} else {
-				if (args.Length > 2) {
-					Console.Write ("too many args\n");
+			}
+			else if (args.Length > 2)
+			{
+				Console.Write ("too many args\n");
+				PrintUsage ();
+				return 1;
+			}
+			else
+			{
+				switch (args [0].ToLower ())
+				{
+				case "-man":
+					auto = false;
+					break;
+				case "-auto":
+					auto = true;
+					break;
+				case "-autonew":
+					auto = true;
+					newer = true;
+					break;
+				case "-help":
+					PrintHelp ();
+					return 0;
+				default:
+					Console.Write ("invalid flag\n");
 					PrintUsage ();
 					return 1;
-				} else {
-					switch (args [0].ToLower ()) {
-					case "-man":
-						auto = false;
-						break;
-					case "-auto":
-						auto = true;
-						break;
-					case "-autonew":
-						auto = true;
-						newer = true;
-						break;
-					case "-help":
-						PrintHelp ();
-						return 0;
-					default:
-						Console.Write ("invalid flag\n");
-						PrintUsage ();
-						return 1;
-					}
-					if (args.Length == 2) {
-						path = args [1];
-					} else {
-						path = "./";
-					}
+				}
+				if (args.Length == 2)
+				{
+					path = args [1];
+				}
+				else
+				{
+					path = "./";
 				}
 			}
-			try {
+			try
+			{
 				string[] files = Directory.GetFiles (path);
 				string[] hashes = new String[files.Length];
-				if (!auto) {
+				if (!auto)
+				{
 					Console.Write ("keep 1st: z, keep 2nd: x, skip: any other key\n");
 				}
-				for (int i = 0; i < files.Length; i++) {
+				for (int i = 0; i < files.Length; i++)
+				{
 					hash = GetSHA1 (files [i]);
 					if (hashes.Contains (hash) &&
-					    (GetSize (files [i]) == GetSize (files [Array.IndexOf (hashes, hash)]))) {
-						if (!auto) {
+					    (GetSize (files [i]) == GetSize (files [Array.IndexOf (hashes, hash)])))
+					{
+						if (!auto)
+						{
 							Console.Write ("{0} {1} {2} {3}bytes\n>>>", files [i],
 								files [Array.IndexOf (hashes, hash)], hash, GetSize (files [i]));
 							userIn = (char)Console.Read ();
 							Console.Write ("\n");
 						}
 						dupCount++;
-						if (auto) {
+						if (auto)
+						{
 							ageflag = FirstNewer (files [i], files [Array.IndexOf (hashes, hash)]);
-							if (newer) {
+							if (newer)
+							{
 								ageflag = !ageflag;
 							}
 						}
-						if (userIn == 'z' || (auto && !ageflag)) {
+						if (userIn == 'z' || (auto && !ageflag))
+						{
 							File.Delete (files [Array.IndexOf (hashes, hash)]);
 							hashes [i] = hash;
 							hashes [Array.IndexOf (hashes, hash)] = "\0";
 							delCount++;
-						} else if (userIn == 'x' || (auto && ageflag)) {
+						}
+						else if (userIn == 'x' || (auto && ageflag))
+						{
 							File.Delete (files [i]);
 							delCount++;
 						}
-					} else {
+					}
+					else
+					{
 						hashes [i] = hash;
 					}
 				}
 				Console.Write ("{0} processed, {1} deleted\n", dupCount, delCount);
 				return 0;
-			} catch (DirectoryNotFoundException) {
+			}
+			catch (DirectoryNotFoundException)
+			{
 				Console.Write ("invalid directory\n");
 				return 1;
 			}
@@ -116,7 +137,8 @@ namespace DupeRemover
 			SHA1CryptoServiceProvider hasher = new SHA1CryptoServiceProvider ();
 			byte[] data = hasher.ComputeHash (F);
 			StringBuilder sBuilder = new StringBuilder ();
-			for (int i = 0; i < data.Length; i++) {
+			for (int i = 0; i < data.Length; i++)
+			{
 				sBuilder.Append (data [i].ToString ("x2"));
 			}
 			F.Close ();
@@ -154,12 +176,7 @@ namespace DupeRemover
 			DateTime mod1 = File.GetLastWriteTime (fName1);
 			DateTime mod2 = File.GetLastWriteTime (fName2);
 			int result = DateTime.Compare (mod1, mod2);
-			if (result < 0) {
-				return false;
-			} else {
-				return true;
-			}
-		
+			return !(result < 0);
 		}
 
 	}
