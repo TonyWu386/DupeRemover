@@ -1,0 +1,7 @@
+*.userprefs
+*.usertasks
+*.pidb
+*.resources
+.directory
+DupeRemover/bin/
+DupeRemover/obj/
