@@ -5,3 +5,4 @@
 .directory
 DupeRemover/bin/
 DupeRemover/obj/
+*.csproj.user

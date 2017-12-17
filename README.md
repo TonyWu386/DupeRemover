@@ -2,7 +2,7 @@
 
 A utility for finding and removing duplicate files implemented in C#
 
-Copyright (c) 2016 [Tony Wu], All Right Reserved
+Copyright (c) 2016-2017 [Tony Wu], All Right Reserved
 
 This software is licensed under the GNU GPL v3.0
 
